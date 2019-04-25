@@ -21,6 +21,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -66,6 +67,9 @@ public class SysLogService {
 		sysLogs.setContent(content);
 		sysLogs.setUserId(userId);
 		sysLogs.setFlag(flag);
+		if(sysLogs.getCreateTime()==null){
+			sysLogs.setCreateTime(new Timestamp(new Date().getTime()));
+		}
 		sysLogsRepository.save(sysLogs);
 	}
 

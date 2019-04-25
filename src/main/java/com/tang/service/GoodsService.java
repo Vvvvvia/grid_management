@@ -14,6 +14,7 @@ import com.tang.entity.Grid;
 import com.tang.util.BarcodePic;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,7 +39,8 @@ import javax.persistence.criteria.Root;
 
 @Service
 public class GoodsService {
-    
+    @Value("${file.imgPath}")
+    private String imgPath;
     @Resource
     private GoodsRepository goodsRepository;
     @Autowired
@@ -66,7 +68,7 @@ public class GoodsService {
             String barcode = time.toString().substring(0,10);
             goods.setCreateTime(barcode);
             System.out.println(barcode);
-            String path = "F://image/code/"+barcode+".jpg";
+            String path = imgPath+"/code/"+barcode+".jpg";
             BarcodePic.createBarcode(barcode,
                     new File(path),"grid");
             goods.setBarcode("/image/code/"+barcode+".jpg");

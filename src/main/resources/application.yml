@@ -1,10 +1,10 @@
 server:
   port: 80
-  servlet:
-    session:
-#      cookie:
-#        http-only: true
-       timeout: 18000000
+#  servlet:
+#    session:
+##      cookie:
+##        http-only: true
+#       timeout: 18000000
 
 
 spring:
@@ -17,7 +17,7 @@ spring:
           filters: stat
           driver-class-name: com.mysql.jdbc.Driver
           #基本属性
-          url: jdbc:mysql://localhost:3306/gzp?useSSL=true&useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true
+          url: jdbc:mysql://localhost:3306/gzp
           username: root
           password: root
           #配置初始化大小/最小 /最大
@@ -25,9 +25,9 @@ spring:
           min-idle: 1
           max-active: 20
           #获取连接等待超时时间
-          max-wait: 60000
+          max-wait: 20000
           #间隔多久进行一次检测，检测需要关闭的空闲连接
-          time-between-eviction-runs-millis: 60000
+          time-between-eviction-runs-millis: 20000
           #一个连接在池中最小生存的时间
           min-evictable-idle-time-millis: 300000
           validation-query: SELECT 'x'
@@ -66,6 +66,9 @@ token:
   expire:
     seconds: 14400
   jwtSecret: (TANG:)_$^11244^%$_(JIAN:)_@@++--(BO:)_++++_.sds_(A:)
+
+file:
+  imgPath: E:/home/image/
 #mybatis:
 #  mapper-locations: classpath:mapper/*.xml
 #  type-aliases-package: com.tang.dao.mapper

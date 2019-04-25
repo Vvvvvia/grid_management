@@ -14,7 +14,8 @@ import java.io.File;
 
 @Configuration
 public class InterceptorConfig extends WebMvcConfigurationSupport {
-
+    @Value("${file.imgPath}")
+    private String imgPath;
     //跨域处理器
     @Bean
     public CrosFilter crosFilter(){
@@ -50,7 +51,7 @@ public class InterceptorConfig extends WebMvcConfigurationSupport {
 
     //文件磁盘图片url 映射
     //配置server虚拟路径，handler为前台访问的目录，locations为files相对应的本地路径
-        registry.addResourceHandler("/image/**").addResourceLocations("file:///F:\\image\\");
+        registry.addResourceHandler("/image/**").addResourceLocations("file:///"+imgPath);
         super.addResourceHandlers(registry);
 
         // 解决swagger无法访问
