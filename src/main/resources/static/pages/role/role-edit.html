@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html class="x-admin-sm">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../../css/ztree/zTreeStyle/zTreeStyle.css" type="text/css">
+    <link rel="stylesheet" href="../../css/ztree/demo.css" type="text/css">
+    <script type="text/javascript" src="../../js/jquery3.2.1.min.js"></script>
+    <script type="text/javascript" src="../../js/xadmin.js"></script>
+    <link rel="stylesheet" href="../../css/font.css">
+    <link rel="stylesheet" href="../../css/xadmin.css">
+    <script src="../../js/vue.min.js"></script>
+    <script src="../../js/axios.min.js"></script>
+    <script type="text/javascript" src="../../lib/layui/layui.js    "></script>
+    <script type="text/javascript" src="../../js/jquery.ztree.all-3.5.min.js"></script>
+    <script type="text/javascript" src="../../js/ztree-menu.js"></script>
+    <script src="../../js/cookie.js"></script>
+</head>
+<body>
+<div class="x-body" id="role">
+    <div class="layui-form" >
+
+        <div class="layui-form-item">
+            <label  class="layui-form-label">
+                <span class="x-red">*</span>ID
+            </label>
+            <div class=" layui-input-inline ">
+                <input type="text" id="id"  required=""  readonly="readonly" v-model="id"
+                       autocomplete="off" class="layui-input ">
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+                <span class="x-red">*</span>
+            </div>
+
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">
+                <span class="x-red">*</span>职位
+            </label>
+            <div class="layui-input-inline">
+                <input type="text"  required=""  v-model="name"
+                       autocomplete="off" class="layui-input" @change="verifyName()">
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+                <span class="x-red">*{{nameTips}}</span>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">
+                <span class="x-red">*</span>描述
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" required=""  v-model="description"
+                       autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+                <span class="x-red">*</span>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">
+                <span class="x-red">*</span>月薪
+            </label>
+            <div class="layui-input-inline">
+                <input type="number"  name="rolename" required=""  v-model="salary"
+                       autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+                <span class="x-red">*</span>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">
+                <span class="x-red">*</span>权限
+            </label>
+            <div class="layui-input-inline">
+                <ul id="treeDemo" class="ztree"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">
+
+        </label>
+        <button :class="(nameTips.length>0)?'layui-disabled':''" class="layui-btn"
+                @click="(nameTips.length===0)?updateRole():''">
+            更新
+        </button>
+        <button  class="layui-btn" lay-filter="cancel" lay-submit="" onclick="x_admin_close()">
+            取消
+        </button>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+
+    const app = new Vue({
+        el: "#role",
+        data:{
+            id:'',
+            name: '',
+            description: '',
+            permissions:[],
+            salary:'',
+            status:'',
+            createTime:'',
+
+            nameTips:''
+
+        },
+        mounted() {
+            var role = JSON.parse(sessionStorage.getItem('role'));
+
+            this.id = role.id;
+            this.name = role.name;
+            this.description = role.description;
+            this.salary = role.salary;
+            this.status = role.status;
+            this.createTime = role.createTime;
+
+            this.initData(this.id);
+        },
+
+        methods:{
+            getData() {
+                if(this.name.length>10||this.name.length<2){
+                    layer.msg('职位长度为2-10个字符',{icon:5,time:1000})
+                } else if(this.description.length>20||this.description.length<2){
+                    layer.msg('描述长度为2-20个字符',{icon:5,time:1000})
+                } else if(this.salary==null||this.salary==''){
+                    layer.msg('请输入月薪',{icon:5,time:1000})
+                }else if (this.permissions===null){
+                    layer.msg('请选择权限',{icon:5,time:1000})
+                }
+                else {
+                    this.permissions = getCheckedMenuIds();
+                    console.log(this.permissions);
+                    return {
+                        'id':this.id,
+                        'name': this.name,
+                        'description': this.description,
+                        'permissionIds':this.permissions,
+                        'salary':this.salary,
+                        'status':1,
+                        'createTime':this.createTime
+                    };
+                }
+            },
+
+            verifyName(){
+                if (this.name.length<=10&&this.name.length>=2){
+                    axios.get(urlPrefix+'/roles/name/'+this.name+'?token=' + token)
+                        .then((r)=>{
+                            if (r.data!=null&&r.data!=''){
+                                this.nameTips='该职位已存在，请检查！'
+                            }else this.nameTips='';
+                        });
+                }
+            }
+            ,
+
+            updateRole() {
+                var data = this.getData();
+                // alert(JSON.stringify(data));
+                // 发异步，把数据提交
+                if (data!=null){
+                    axios.put(urlPrefix+'/roles?token=' + token, data)
+                        .then((response) => {
+                            // alert(JSON.stringify(response))
+                            layer.alert("更新成功", {icon: 6},function () {
+                                var index = parent.layer.getFrameIndex(window.name);
+                                parent.layer.close(index);
+                            });
+
+                        }).catch((err) => {
+                        errHandler(err);
+                        layer.alert("更新失败", {icon: 5});
+
+                    });
+                }
+
+            },
+            initData(id){
+                    if(id != ""){
+                        initMenuDatas(id);
+                    }
+                }
+
+        }
+    });
+
+    $.fn.zTree.init($("#treeDemo"), getSettting(), getMenuTree());
+
+
+
+
+
+</script>
+</body>
+</html>

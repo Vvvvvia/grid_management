@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html class="x-admin-sm">
+
+<head>
+    <meta charset="UTF-8">
+    <title>个人信息更新</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <link rel="stylesheet" href="../../css/font.css">
+    <link rel="stylesheet" href="../../css/xadmin.css">
+    <script type="text/javascript" src="../../js/jquery3.2.1.min.js"></script>
+    <script type="text/javascript" src="../../lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../../js/xadmin.js"></script>
+    <script type="text/javascript" src="../../js/cookie.js"></script>
+    <script type="text/javascript" src="../../js/vue.min.js"></script>
+    <script type="text/javascript" src="../../js/axios.min.js"></script>
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+    <script src="../../js/html5.min.js"></script>
+    <script src="../../js/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+<div class="x-body" id="user-edit">
+
+    <div class="layui-form-item">
+        <label  class="layui-form-label">
+            <span class="x-red">*</span>ID
+        </label>
+        <div class=" layui-input-inline ">
+            <input type="text" id="id"  required=""  readonly="readonly" placeholder="系统自增" v-model="user.id"
+                   autocomplete="off" class="layui-input ">
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <span class="x-red">*</span>
+        </div>
+
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">
+            <span class="x-red">*</span>姓名(用户名)
+        </label>
+        <div class="layui-input-inline">
+            <input type="text" id="username" name="username" required="" placeholder="登录认证的唯一账户" v-model="user.userName"
+                   autocomplete="off" class="layui-input" @change="verifyName()">
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <span class="x-red">*{{nameTips}}</span>
+        </div>
+    </div>
+    <div class="layui-form-item">
+
+    </div>
+    <div class="layui-form-item">
+        <label  class="layui-form-label">
+            <span class="x-red">*</span>性别
+        </label>
+        <div class="layui-input-inline">
+            <select class="layui-select" v-model="user.sex">
+                <option value="男">男</option>
+                <option value="女">女</option>
+            </select>
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <span class="x-red">*</span>
+        </div>
+
+    </div>
+    <div class="layui-form-item">
+        <label  class="layui-form-label">
+            <span class="x-red">*</span>手机
+        </label>
+        <div class="layui-input-inline">
+            <input type="text" id="phone"  required="" v-model="user.phone" @change="verifyPhone()"
+                   autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <span class="x-red" id="phoneTips">*{{phoneTips}}</span>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label  class="layui-form-label">
+            <span class="x-red">*</span>职位
+        </label>
+        <div class="layui-input-inline">
+            <input type="text"  readonly="readonly" required="" v-model="roleName"
+                   autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">
+
+        </label>
+        <button :class="(nameTips.length>0||phoneTips.length>0)?'layui-disabled':''" class="layui-btn"
+                @click="(phoneTips.length===0&&nameTips.length===0)?updateuser():''">
+            修改
+        </button>
+    </div>
+</div>
+<script>
+
+    const app = new Vue({
+        el: "#user-edit",
+        data:{
+            user:{
+                roleIds: []
+            },
+
+            roleId:'',
+            roleName:'',
+
+            phoneTips:'',
+            nameTips:''
+
+            ,phone:'',
+            name:''
+
+        },
+        mounted() {
+            var user = JSON.parse(sessionStorage.getItem("current"));
+            // alert(JSON.stringify(user));
+            this.user = user;
+            this.name=user.userName;
+            this.phone=user.phone;
+            this.getRole();
+        },
+
+        methods:{
+
+            getData() {
+                var user = this.user;
+                if(user.userName.length>10||user.userName.length<2){
+                    layer.msg('员工姓名长度为2-10个字符',{icon:5,time:1000})
+                }else if (user.sex==null||user.sex===''){
+                    layer.msg('请选择员工性别',{icon:5,time:1000})
+                } else if (user.phone==null||user.phone===''||user.phone.length!=11){
+                    layer.msg('员工手机格式错误(11位)',{icon:5,time:1000})
+                }else if (this.roleId==null||this.roleId===''){
+                    layer.msg('请选择职位',{icon:5,time:1000})
+                }
+                else {
+                    this.user.roleIds=[this.roleId];
+                    return this.user;
+                }
+            },
+
+            getRole(){
+                axios.get(urlPrefix+'/roles?userId='+this.user.id+'&token=' + token)
+                    .then((r)=>{
+                        if (r.data!=null){
+                            this.roleId=r.data[0].roleId;
+                            this.roleName=r.data[0].sysRoleByRoleId.name;
+                        }
+                    });
+            }
+            ,
+            verifyPhone(){
+                if (this.user.phone.length===11&&this.phone!=this.user.phone){
+                    axios.get(urlPrefix+'/users/phone/'+this.user.phone+'?token=' + token)
+                        .then((r)=>{
+                            if (r.data.data!=null){
+                                this.phoneTips='该手机号码已被注册，请更换！'
+                            }else this.phoneTips='';
+                        });
+                }
+
+            }
+            ,
+            verifyName(){
+                if (this.user.userName.length<=10&&this.user.userName.length>=2&&this.name!=this.user.userName){
+                    axios.get(urlPrefix+'/users/name/'+this.user.userName+'?token=' + token)
+                        .then((r)=>{
+                            if (r.data.data!=null){
+                                this.nameTips='该用户名已被注册，请检查！'
+                            }else this.nameTips='';
+                        });
+                }
+
+            }
+            ,
+
+            updateuser() {
+                var data = this.getData();
+                // alert(JSON.stringify(data));
+                //发异步，把数据提交
+                if (data!=null){
+                    axios.put(urlPrefix+'/users?token=' + token, data)
+                        .then((response) => {
+                            // alert(JSON.stringify(response))
+                            if (response.data.data==="phone"){
+                                layer.alert("该手机号已注册，修改失败！", {icon: 5});
+                            }else {
+                                layer.msg("修改成功", {icon: 6,time:1000});
+                            }
+                        }).catch((err) => {
+                        errHandler(err);
+                        layer.alert("修改失败", {icon: 5});
+
+                    });
+                }
+
+            } ,
+            setRole(){
+                var role = JSON.parse(sessionStorage.getItem('role'));
+
+                this.roleId = role.id;
+                this.roleName = role.name;
+            }
+            ,
+            selectRole(){
+                x_admin_show("选择职位",'./user-roleList.html',450,350,this.setRole)
+            }
+
+        }
+    });
+</script>
+</body>
+
+</html>

@@ -1,0 +1,197 @@
+<!doctype html>
+<html class="x-admin-sm">
+<head>
+    <meta charset="UTF-8">
+    <title>格子铺管理系统</title>
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <!--<meta name="viewport"-->
+          <!--content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi"/>-->
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <link rel="stylesheet" href="css/font.css">
+    <link rel="stylesheet" href="css/xadmin.css">
+    <link rel="stylesheet" href="css/font-awesome/css/font-awesome.css">
+    <script type="text/javascript" src="js/jquery3.2.1.min.js"></script>
+    <script src="lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="js/xadmin.js"></script>
+    <script type="text/javascript" src="js/cookie.js"></script>
+    <script type="text/javascript" src="js/vue.min.js"></script>
+    <script type="text/javascript" src="js/axios.min.js"></script>
+
+
+
+</head>
+<body>
+<!-- 顶部开始 -->
+<div class="container">
+    <div class="logo"><a href="./index.html">格子铺管理系统</a></div>
+    <div class="left_open">
+        <i title="展开左侧栏" class="iconfont">&#xe699;</i>
+    </div>
+
+    <ul class="layui-nav right" lay-filter="">
+        <li class="layui-nav-item">
+            <a href="javascript:;" id="username"></a>
+            <dl class="layui-nav-child"> <!-- 二级菜单 -->
+                <!--<dd><a onclick="x_admin_show('个人信息','user')">个人信息</a></dd>-->
+                <!--<dd><a onclick="x_admin_show('切换帐号','http://www.baidu.com')">切换帐号</a></dd>-->
+                <dd><a onclick="logout()">退出</a></dd>
+            </dl>
+        </li>
+    </ul>
+
+</div>
+<!-- 顶部结束 -->
+<!-- 中部开始 -->
+<!-- 左侧菜单开始 -->
+<div class="left-nav" id="app">
+    <div id="side-nav">
+        <ul id="nav">
+            <li v-for="item in permissions">
+                <a :_href="item.href.length>0?item.href:'javaScript:;'">
+                    <i class="fa " :class="item.css"></i>
+                    <cite>{{item.name}}</cite>
+                    <i class="iconfont nav_right">&#xe697;</i>
+                </a>
+                <ul class="sub-menu" v-for="child in item.child">
+                    <li date-refresh="1">
+                        <a :_href="child.href">
+                            <i class=" fa" :class="child.css"></i>
+                            <cite>{{child.name}}</cite>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+<!-- <div class="x-slide_left"></div> -->
+<!-- 左侧菜单结束 -->
+<!-- 右侧主体开始 -->
+<div class="page-content">
+    <div class="layui-tab tab" lay-filter="xbs_tab" lay-allowclose="false">
+        <ul class="layui-tab-title">
+            <li class="home"><i class="layui-icon">&#xe68e;</i>我的桌面</li>
+        </ul>
+        <div class="layui-unselect layui-form-select layui-form-selected" id="tab_right">
+            <dl>
+                <dd data-type="this">关闭当前</dd>
+                <dd data-type="other">关闭其它</dd>
+                <dd data-type="all">关闭全部</dd>
+            </dl>
+        </div>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <iframe src='pages/welcome.html' frameborder="0" scrolling="yes"
+                        class="x-iframe"></iframe>
+            </div>
+        </div>
+        <div id="tab_show"></div>
+    </div>
+</div>
+<div class="page-content-bg"></div>
+<!-- 右侧主体结束 -->
+<!-- 中部结束 -->
+<!-- 底部开始 -->
+<div class="footer">
+    <div class="copyright">Copyright © 汤建波</div>
+</div>
+<!-- 底部结束 -->
+</body>
+<script>
+
+    const app = new Vue({
+        el: "#app",
+        data: {
+            // Note 'isActive' is left out and will not appear in the rendered table
+            permissions:[],
+            user:{}
+        },
+
+        // components: {
+        //   'paginate':VuePaginate
+        // },
+        computed: {},
+//自动加载
+        mounted() {
+            this.getMenus();
+            this.getCurrent();
+        },
+
+        methods: {
+
+            getMenus() {
+
+                axios.get(urlPrefix + '/permissions/current', {
+                    params: {
+                        'token': localStorage.getItem('token')
+                    },
+                }).then((response) => {
+
+                    this.permissions = response.data;
+                    // alert(JSON.stringify(this.permissions))
+
+                }).catch((err) => {
+
+                    var response = err.response.data;
+                    // alert(JSON.stringify(response));
+                    var code = response.code;
+                    var message = response.message;
+                    if (code == 400) {
+                        layer.msg(message);
+                    } else if (code == 401) {
+                        localStorage.removeItem("token");
+                        location.href = 'login.html';
+                    } else if (code == 403) {
+                        layer.msg("未授权:" + message,{icon:1,time:1000});
+                        layer.msg('未授权');
+                    } else if (code == 500) {
+                        layer.msg('系统错误：' + message,{icon:1,time:1000});
+                    }
+                });
+            },
+            getCurrent() {
+
+                axios.get(urlPrefix + '/users/current', {
+                    params: {
+                        'token': localStorage.getItem('token')
+                    },
+                }).then((response) => {
+
+                    this.user = response.data;
+                    // alert(JSON.stringify(this.user))
+                    $('#username').text(this.user.username);
+                    sessionStorage.setItem("current",JSON.stringify(this.user));
+                }).catch((err) => {
+                    var response = err.response.data;
+                    // alert(JSON.stringify(response));
+                    var code = response.code;
+                    var message = response.message;
+                    if (code == 400) {
+                        layer.msg(message);
+                    } else if (code == 401) {
+                        localStorage.removeItem("token");
+                        location.href = 'login.html';
+                    } else if (code == 403) {
+                        layer.msg("未授权:" + message,{icon:1,time:1000});
+                        layer.msg('未授权');
+                    } else if (code == 500) {
+                        layer.msg('系统错误：' + message,{icon:1,time:1000});
+                    }
+                });
+            },
+        }
+    });
+    function logout(){
+        var token = localStorage.getItem('token');
+        $.ajax({
+            type : 'get',
+            url : urlPrefix+'/logout?token=' + token,
+            success : function(data) {
+                localStorage.removeItem("token");
+                location.href='login.html';
+            },
+        });
+    }
+</script>
+</html>

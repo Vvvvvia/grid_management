@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html class="x-admin-sm">
+
+  <head>
+      <meta charset="UTF-8">
+      <title>格子租赁</title>
+      <meta name="renderer" content="webkit">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <!--<meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />-->
+      <link rel="stylesheet" href="../../css/font.css">
+      <link rel="stylesheet" href="../../css/xadmin.css">
+      <script type="text/javascript" src="../../js/jquery3.2.1.min.js"></script>
+      <script type="text/javascript" src="../../lib/layui/layui.js" charset="utf-8"></script>
+      <script type="text/javascript" src="../../js/xadmin.js"></script>
+      <script type="text/javascript" src="../../js/cookie.js"></script>
+      <script type="text/javascript" src="../../js/vue.min.js"></script>
+      <script type="text/javascript" src="../../js/axios.min.js"></script>
+      <!--<script type="text/javascript" src="../../js/vue-paginate.js"></script>-->
+
+      <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+      <!--[if lt IE 9]>
+
+      <script src="../../js/html5.min.js"></script>
+      <script src="../../js/respond.min.js"></script>
+
+      <![endif]-->
+  </head>
+
+  <body>
+  <div class="x-nav" >
+<span class="layui-breadcrumb">
+<a href="">首页</a>
+<a href="">格子管理</a>
+<a>
+<cite>格子列表>>>格子租赁</cite></a>
+</span>
+      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+          <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+  </div>
+    <div class="x-body" id="detail">
+
+            <div class="layui-form-item">
+                <label  class="layui-form-label">
+                    <span class="x-red">*</span>格子铺ID
+                </label>
+                <div class=" layui-input-inline ">
+                    <input type="text" id="id"  required="" readonly="readonly" v-model="record.gridId"
+                           autocomplete="off" class="layui-input ">
+                </div>
+
+                <label  class="layui-form-label">
+                    <span class="x-red">*</span>挂靠商铺电话
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text"  readonly="readonly" required="" v-model="gridByGridId.shopByShopId.phone"
+                           autocomplete="off" class="layui-input ">
+                </div>
+
+
+
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">
+                    <span class="x-red">*</span>格子铺名称
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="name" name="name" readonly="readonly" required="" v-model="gridByGridId.name"
+                           autocomplete="off" class="layui-input ">
+                </div>
+                <label  class="layui-form-label">
+                    <span class="x-red">*</span>挂靠商铺地址
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="" readonly="readonly" required="" v-model="gridByGridId.shopByShopId.address"
+                           autocomplete="off" class="layui-input ">
+                </div>
+
+
+            </div>
+            <div class="layui-form-item">
+                <label  class="layui-form-label">
+                    <span class="x-red">*</span>格子数量
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="phone" readonly="readonly"  required="" v-model="gridByGridId.size"
+                           autocomplete="off" class="layui-input">
+                </div>
+
+                <label  class="layui-form-label">
+                    <span class="x-red">*</span>租赁时间
+                </label>
+                <div class=" layui-input-inline ">
+                    <input type="text"  required="" readonly="readonly" placeholder="订单生成时填充" v-model="record.date"
+                           autocomplete="off" class="layui-input ">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                    <span class="x-a">*</span>
+                </div>
+
+            </div>
+            <div class="layui-form-item">
+                <label  class="layui-form-label">
+                    <span class="x-red">*</span>挂靠商铺ID
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="rate"  readonly="readonly" required="" v-model="gridByGridId.shopId"
+                           autocomplete="off" class="layui-input ">
+                </div>
+                <label  class="layui-form-label">
+                    <span class="x-red">*</span>到期时间
+                </label>
+                <div class=" layui-input-inline ">
+                    <input type="text"  required="" id="endDate" v-model="record.endDate"
+                           autocomplete="off" class="layui-input ">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                    <span class="x-a">*</span>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label  class="layui-form-label">
+                    <span class="x-red">*</span>挂靠商铺名称
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" readonly="readonly" required="" v-model="gridByGridId.shopByShopId.name"
+                           autocomplete="off" class="layui-input ">
+                </div>
+                <label  class="layui-form-label">
+                    <span class="x-red">*</span>总租金
+                </label>
+                <div class=" layui-input-inline ">
+                    <input type="text"  required="" v-model="record.fee"
+                           autocomplete="off" class="layui-input ">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                    <span class="x-a">*</span>
+                </div>
+
+            </div>
+            <div class="layui-form-item">
+
+                <label  class="layui-form-label">
+                    <span class="x-red">*</span>格主ID
+                </label>
+                <div class=" layui-input-inline ">
+                    <input type="text"  required="" readonly="readonly" v-model="tenantByTenantId.id"
+                           autocomplete="off" class="layui-input ">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                    <span class="x-a">*</span>
+                </div>
+
+            </div>
+            <div class="layui-form-item">
+                <label  class="layui-form-label">
+
+                    <span class="x-red">*</span>格主姓名
+                </label>
+                <div class=" layui-input-inline ">
+                    <input type="text"  required="" readonly="readonly" v-model="tenantByTenantId.name"
+                           autocomplete="off" class="layui-input ">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                    <span class="x-a">*</span>
+                </div>
+                <button class="layui-btn layui-btn-normal" @click="x_admin_show('选择格主',
+                'grid-tenantList.html', 900, 750,function() {
+                    tenantByTenantId = JSON.parse(sessionStorage.getItem('tenant'));
+                    record.tenantId=tenantByTenantId.id;
+             })">选择格主</button>
+
+            </div>
+
+            <div class="layui-form-item">
+              <label class="layui-form-label">
+              </label>
+                <label class="layui-form-label">
+                </label>
+              <button  class="layui-btn" @click="rent(record)" >
+                  租赁
+              </button>
+                <button  class="layui-btn" onclick="location.href='grid-list.html'">
+                    返回
+                </button>
+          </div>
+    </div>
+    <script>
+
+        const app = new Vue({
+            el: "#detail",
+            data:{
+                record:{
+                    date:'',
+                    endDate:'',
+                    gridId:'',
+                    tenantId:'',
+                    fee:'',
+                    status:true,
+                },
+                gridByGridId:{
+                    shopByShopId:{}
+                },
+                tenantByTenantId:{}
+            },
+
+            mounted() {
+                const grid = JSON.parse(sessionStorage.getItem('grid'));
+                // alert(JSON.stringify(grid));
+                this.record.gridId = grid.id;
+                this.gridByGridId.name = grid.name;
+                this.gridByGridId.size = grid.size;
+                this.gridByGridId.shopByShopId.phone = grid.shopByShopId.phone;
+                this.gridByGridId.shopId = grid.shopId;
+                this.gridByGridId.shopByShopId.name = grid.shopByShopId.name;
+                this.gridByGridId.shopByShopId.address = grid.shopByShopId.address;
+            },
+
+            methods:{
+
+                rent(data) {
+                    var now = new Date();
+                    // alert(data.endDate)
+                    if (endDate==null){
+                        layer.msg('请选择到期时间',{icon:5,time:1000})
+                    }else if (new Date(data.endDate)<now){
+                        layer.msg('请选择未来的日期',{icon:5,time:1000})
+                    }else if (data.fee==null||data.fee==='') {
+                        layer.msg('请填写租金信息',{icon:5,time:1000})
+                    }
+                    else if (data.tenantId==null||data.tenantId===''){
+                        layer.msg('请添加格主信息',{icon:5,time:1000})
+                    }
+                    else {
+                        var str = "确认完成租赁吗？";
+                        layer.confirm(str,{icon:0},function () {
+                            //发异步，把数据提交
+                            axios.post(urlPrefix+'/grids/rent?token=' + token,data )
+                                .then((response) => {
+                                    layer.alert("租赁成功", {icon: 6},function () {
+                                        layer.closeAll()
+                                        location.href='./grid-list.html'
+                                    });
+
+                                }).catch((err) => {
+                                errHandler(err);
+                                layer.alert("租赁失败", {icon: 5});
+
+                            });
+                        });
+                    }
+
+
+                }
+
+            },
+
+        });
+        layui.use('laydate', function(){
+            var laydate = layui.laydate;
+
+            //执行一个laydate实例
+            laydate.render({
+
+                elem: '#endDate', //指定元素
+                format:'yyyy-MM-dd',
+                done:(value)=>{
+                    app.record.endDate = value;
+                }
+
+            });
+        });
+  </script>
+
+  </body>
+
+</html>

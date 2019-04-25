@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html class="x-admin-sm">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>登录</title>
+    <link href="css/xadmin.css" type="text/css" rel="stylesheet">
+    <script src="js/jquery3.2.1.min.js"></script>
+    <script src="lib/layui/layui.js"></script>
+    <script src="js/cookie.js"></script>
+    <script src="js/xadmin.js"></script>
+</head>
+<body class="login-bg" onload="init()">
+
+<div class="login">
+    <div class="message">格子铺管理系统</div>
+    <div id="darkbannerwrap"></div>
+
+    <div id="login-form" method="post" onsubmit="return false;">
+        <input id="username" name="username" placeholder="用户名" type="text"
+               autocomplete="off">
+        <hr class="hr15">
+        <input id="password" name="password" placeholder="密码" type="password" autocomplete="off">
+        <hr class="hr15">
+        <input style="width: 100%;" value="登录" type="submit" id="lo"
+                onclick="login(this)">
+        <hr class="hr20">
+        <div style="text-align: center"> <span  id="info" style="color: red"></span></div>
+    </form>
+
+
+</div>
+
+</body>
+
+<script type="text/javascript">
+    $('#password').bind('keyup', function(event) {
+        if (event.keyCode == "13") {
+            //回车执行查询
+            $('#lo').click();
+        }
+    });
+    function init(){
+        var index;
+        if (top != self) {
+            parent.location.href = '/login.html';
+        }
+        var token = localStorage.getItem("token");
+        // alert(token)
+        if (token != null && token.trim().length != 0) {
+            $.ajax({
+                type : 'get',
+                url : urlPrefix+'/users/current?token=' + token,
+                success : function(data) {
+                    location.href = 'index.html';
+
+                },
+                error : function(xhr, textStatus, errorThrown) {
+                    var msg = xhr.responseText;
+                    var response = JSON.parse(msg);
+                    var code = response.code;
+                    var message = response.message;
+                    if (code == 401) {
+                        localStorage.removeItem("token");
+                    }
+                }
+            });
+        }
+    }
+
+
+    function login(obj) {
+        $(obj).attr("disabled", true);
+
+        var username = $.trim($('#username').val());
+        var password = $.trim($('#password').val());
+        if (username == "" || password == "") {
+            $("#info").html('用户名或者密码不能为空');
+            $(obj).attr("disabled", false);
+        } else {
+            $.ajax({
+                type : 'post',
+                // async:false,
+                url : urlPrefix+'/login',
+                data : {'username':username,'password':password},
+                beforeSend:function(){
+                    $("#info").html('');
+                    index = layer.load();
+                },
+                success : function(data) {
+                    // alert(data.token);
+                    layui.layer.close(index);
+                    localStorage.setItem("token", data.token);
+                    location.href = 'index.html';
+                },
+                error : function(xhr, textStatus, errorThrown) {
+                    layui.layer.close(index);
+                    var msg = xhr.responseText;
+                    var response = JSON.parse(msg);
+                    $("#info").html(response.message);
+                    $(obj).attr("disabled", false);
+                }
+            });
+
+        }
+    }
+</script>
+</html>
