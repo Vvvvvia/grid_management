@@ -19,7 +19,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import jdk.nashorn.internal.ir.annotations.Ignore;
+
 
 @Entity
 @Table(name = "sys_permission", schema = "gzp", catalog = "")
