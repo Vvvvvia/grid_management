@@ -68,7 +68,7 @@ token:
   jwtSecret: (TANG:)_$^11244^%$_(JIAN:)_@@++--(BO:)_++++_.sds_(A:)
 
 file:
-  imgPath: E:/home/image/
+  imgPath: C:/home/image/
 #mybatis:
 #  mapper-locations: classpath:mapper/*.xml
 #  type-aliases-package: com.tang.dao.mapper
