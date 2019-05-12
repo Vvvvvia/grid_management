@@ -319,7 +319,7 @@ public class SellService {
         Double salary = user.getSalary();
         //判断余额是否足够
         if (amount>money+salary){
-            return new ResponseBean(false,"账户余额不足，结账失败",UnicomResponseEnums.SUCCESS_OPTION);
+            return new ResponseBean(false,"账户余额不足，结账失败", UnicomResponseEnums.SUCCESS_OPTION);
         }
 
         Double update = amount;

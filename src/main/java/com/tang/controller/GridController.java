@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -130,6 +131,7 @@ public class GridController {
             return new ResponseBean<RentRecords>(false,UnicomResponseEnums.ILLEGAL_ARGUMENT);
         }
         rentRecords.setStatus(true);
+        rentRecords.setDate(new Timestamp(new Date().getTime()));
         RentRecords records = rentRecordsService.save(rentRecords);
         gridService.rent(gridId,records.getId());
         return new ResponseBean<RentRecords>(true,records,UnicomResponseEnums.SUCCESS_OPTION);
