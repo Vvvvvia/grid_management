@@ -16,6 +16,7 @@ import java.util.List;
 public interface RentRecordsRepository extends JpaRepository<RentRecords,Integer>,JpaSpecificationExecutor {
 
     void deleteByIdIn(List list);
+    List<RentRecords> findByStatus(Boolean status);
     //    通过格子查询
     Page<RentRecords> findByGridId(Pageable pageable, Integer gridId);
     //    通过格主查询

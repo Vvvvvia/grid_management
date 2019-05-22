@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.Nullable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,10 +42,26 @@ public class GridService {
     private ShopRepository shopRepository;
     @Resource
     private GoodsRepository goodsRepository;
+    @Resource
+    private RentRecordsRepository rentRecordsRepository;
 
     //租用
     public Integer rent(Integer id, Integer rentId){
         return gridRepository.rent(rentId,id);
+    }
+    //每日检查租赁时间是否过期，如过期则自动解除租赁
+    @Transactional
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void checkRentEndDate(){
+        List<RentRecords> rentRecords = rentRecordsRepository.findByStatus(true);
+        Date now = new Date();
+        for (RentRecords r : rentRecords){
+            System.out.println(r.getEndDate().getTime()+"  "+now.getTime());
+            if (r.getEndDate().getTime()<=now.getTime()){
+                relieve(r.getGridId());
+                rentRecordsRepository.updateStatusById(false,r.getId());
+            }
+        }
     }
 
     //解租
@@ -111,6 +128,7 @@ public class GridService {
     }
     @Transactional
     public Page<Grid> findAll(Pageable pageable,String name,String shopName,Boolean status) {
+        checkRentEndDate();
         Specification<Grid> sp = new Specification <Grid>() {
 
             @Nullable

@@ -38,6 +38,8 @@ public class RentRecordsService {
     private TenantRepository tenantRepository;
     @Resource
     private GridRepository gridRepository;
+    @Resource
+    private GridService gridService;
 
     public Optional<RentRecords> findById(Integer id) {
         return rentRecordsRepository.findById(id);
@@ -58,6 +60,7 @@ public class RentRecordsService {
 
     public Page<RentRecords> findAll(Pageable pageable, Boolean status,String type,
                                String tenantName, String gridName,Date start,Date end){
+        gridService.checkRentEndDate();
         String datePattern = "date";
         if (type.equals("end")){
             datePattern="endDate";

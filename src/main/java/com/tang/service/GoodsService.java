@@ -11,6 +11,7 @@ import com.tang.entity.Goods;
 import com.tang.entity.Goods;
 import com.tang.entity.GoodsRecords;
 import com.tang.entity.Grid;
+import com.tang.entity.RentRecords;
 import com.tang.util.BarcodePic;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,7 +97,17 @@ public class GoodsService {
     }
 
     //状态更新
+    @Transactional
     public Integer updateStatusById(Integer id,Boolean status){
+        //重新上架商品时，要检查商品所在格子铺是否被租赁出去
+        //如果未租 则不允许上架
+        if (status){
+            Goods g = goodsRepository.getOne(id);
+            RentRecords r = rentRecordsRepository.findByGridIdAndStatusIsTrue(g.getGridId());
+            if (r!=null){
+                return goodsRepository.updateStatusById(status,id);
+            }else return 0;
+        }
         return goodsRepository.updateStatusById(status,id);
     }
 
